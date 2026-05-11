@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>攻略中心 </title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .strategy-center {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .strategy-header {
+            margin-bottom: 30px;
+        }
+
+        .strategy-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .strategy-tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            color: #666;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .strategy-tab.active {
+            background: #4facfe;
+            color: white;
+        }
+
+        .search-box {
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #4facfe;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .strategy-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .strategy-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .strategy-content {
+            padding: 20px;
+        }
+
+        .strategy-content h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .strategy-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .strategy-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .strategy-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: #f0f7ff;
+            color: #4facfe;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .strategy-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .strategy-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .view-btn:hover {
+            background: #00f2fe;
+        }
+
+        .save-btn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .save-btn:hover {
+            background: #e0e0e0;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="main-nav">
+    <div class="nav-brand">
+        <img src="/images/tubiao.png" alt="品牌图标"
+             style="width: 95px; height: 55px; margin-right: 10px; vertical-align: middle;">  角色管理系统
+    </div>
+
+    <div class="nav-links">
+        <a href="home.html" class="nav-btn" id="nav-home">
+            <i class="bi bi-house"></i> <span>首页</span>
+        </a>
+        <a href="model-library.html" class="nav-btn" id="nav-library">
+            <i class="bi bi-collection"></i> <span>模型库</span>
+        </a>
+        <a href="strategy-center.html" class="nav-btn active" id="nav-strategy">
+            <i class="bi bi-journal-text"></i> <span>攻略中心</span>
+        </a>
+        <!-- 用户菜单 -->
+        <div class="user-dropdown">
+            <button class="user-btn" id="user-dropdown-btn">
+                <img src="/images/avatar.jpg" class="user-avatar" onerror="this.src='/images/default-avatar.jpg'" alt="用户头像">
+                <span class="user-name">绮哟哟</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="user-dropdown-content" id="userDropdown">
+                <div class="user-info">
+                    <img src="/images/avatar.jpg" class="user-avatar-large" onerror="this.src='/images/default-avatar.jpg'">
+                    <div class="user-details">
+                        <h4>绮哟哟</h4>
+                        <p>UID: G213323441</p>
+                        <span class="user-level">Lv.60</span>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <a href="personal-center.html" class="user-menu-item">
+                        <i class="bi bi-person"></i> 个人中心
+                    </a>
+                    <a href="#" class="user-menu-item">
+                        <i class="bi bi-gear"></i> 账号设置
+                    </a>
+                    <a href="#" class="user-menu-item">
+                        <i class="bi bi-bookmark-heart"></i> 我的收藏
+                    </a>
+                    <div class="divider"></div>
+                    <button class="logout-btn">
+                        <i class="bi bi-box-arrow-right"></i> 退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 攻略中心内容 -->
+<div class="strategy-center" id="strategy-app">
+    <div class="strategy-header">
+        <h1>模型资讯</h1>
+        <p>查模型详细攻略，提升游戏体验</p>
+    </div>
+
+    <div class="strategy-tabs">
+        <button class="strategy-tab active" @click="setStrategyTab('character')">
+            <i class="bi bi-people"></i> 角色模型
+        </button>
+        <button class="strategy-tab" @click="setStrategyTab('team')">
+            <i class="bi bi-people-fill"></i> 贴图搭配
+        </button>
+        <button class="strategy-tab" @click="setStrategyTab('equipment')">
+            <i class="bi bi-shield"></i> 模型推荐
+        </button>
+        <button class="strategy-tab" @click="setStrategyTab('boss')">
+            <i class="bi bi-trophy"></i> 模型攻略
+        </button>
+    </div>
+
+    <div class="search-box">
+        <input
+                type="text"
+                class="search-input"
+                placeholder="搜索攻略..."
+                v-model="strategySearchQuery"
+        >
+    </div>
+
+    <div v-if="strategyTab === 'character'" class="strategy-section">
+        <h2>角色攻略</h2>
+        <p class="section-description">查看所有模型的详细搭配和技巧</p>
+
+        <div class="strategy-grid">
+            <div v-for="role in filteredRoles" :key="role.id" class="strategy-card">
+                <img :src="role.imageUrl || '/images/default.jpg'" :alt="role.name" class="strategy-image">
+                <div class="strategy-content">
+                    <div class="strategy-header-info">
+                        <h3>{{ role.name }}</h3>
+                        <span class="role-series-tag">{{ role.roleSeries || '未分类' }}</span>
+                    </div>
+
+                    <!-- 角色属性概览 -->
+                    <div class="role-attributes-grid">
+                        <div class="attribute-item">
+                            <span class="attribute-label">等级</span>
+                            <span class="attribute-value">Lv.{{ role.level || 60 }}</span>
+                        </div>
+                        <div class="attribute-item">
+                            <span class="attribute-label">生命</span>
+                            <span class="attribute-value">{{ role.hp || 0 }}</span>
+                        </div>
+                        <div class="attribute-item">
+                            <span class="attribute-label">防御</span>
+                            <span class="attribute-value">{{ role.defense || 0 }}</span>
+                        </div>
+                        <div class="attribute-item">
+                            <span class="attribute-label">暴击率</span>
+                            <span class="attribute-value">{{ role.critRate || '0%' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 主要属性 -->
+                    <div class="strategy-tags">
+                        <span class="tag attribute-tag">{{ role.attribute || '物理' }}</span>
+                        <span class="tag series-tag">{{ role.roleSeries || getDefaultSeries(role) }}</span>
+                        <span class="tag type-tag">{{ role.attackType || '强攻' }}</span>
+                    </div>
+
+                    <!-- 新增：简要介绍 -->
+                    <div class="strategy-description" v-if="role.briefIntro || role.description">
+                        <p>{{ role.briefIntro || role.description }}</p>
+                    </div>
+
+                    <!-- 详细属性（可折叠） -->
+                    <div class="detailed-attributes" v-if="showDetailedAttributes[role.id]">
+                        <div class="detail-item">
+                            <span>异常掌控：</span>
+                            <strong>{{ role.abnormalMastery || 0 }}</strong>
+                        </div>
+                        <div class="detail-item">
+                            <span>穿戴率：</span>
+                            <strong>{{ role.wearRate || '0%' }}</strong>
+                        </div>
+                        <div class="detail-item" v-if="role.description">
+                            <span>详细描述：</span>
+                            <p>{{ role.description }}</p>
+                        </div>
+                    </div>
+
+                    <div class="strategy-actions">
+                        <button class="strategy-btn view-btn" @click="viewStrategy(role)">
+                            <i class="bi bi-eye"></i> 查看攻略
+                        </button>
+                        <button class="strategy-btn toggle-detail-btn" @click="toggleDetail(role.id)">
+                            <i class="bi" :class="showDetailedAttributes[role.id] ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                            {{ showDetailedAttributes[role.id] ? '收起详情' : '更多属性' }}
+                        </button>
+                        <button class="strategy-btn save-btn" @click="saveStrategy(role)">
+                            <i class="bi" :class="isSaved(role) ? 'bi-bookmark-check-fill' : 'bi-bookmark'"></i>
+                            {{ isSaved(role) ? '已收藏' : '收藏' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="strategyTab === 'team'" class="strategy-section">
+        <div class="empty-state">
+            <i class="bi bi-people-fill"></i>
+            <h3>搭配</h3>
+            <p>功能开发中，敬请期待...</p>
+        </div>
+    </div>
+
+    <div v-if="strategyTab === 'equipment'" class="strategy-section">
+        <div class="empty-state">
+            <i class="bi bi-shield"></i>
+            <h3>推荐</h3>
+            <p>功能开发中，敬请期待...</p>
+        </div>
+    </div>
+
+    <div v-if="strategyTab === 'boss'" class="strategy-section">
+        <div class="empty-state">
+            <i class="bi bi-trophy"></i>
+            <h3>攻略</h3>
+            <p>功能开发中，敬请期待...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                strategyTab: 'character',
+                strategySearchQuery: '',
+                strategyRoles: []
+            };
+        },
+        computed: {
+            filteredRoles() {
+                if (!this.strategySearchQuery) {
+                    return this.strategyRoles;
+                }
+                const query = this.strategySearchQuery.toLowerCase();
+                return this.strategyRoles.filter(role =>
+                    role.name.toLowerCase().includes(query) ||
+                    (role.description && role.description.toLowerCase().includes(query)) ||
+                    (role.attribute && role.attribute.toLowerCase().includes(query))
+                );
+            }
+        },
+        async mounted() {
+            await this.fetchRoles();
+        },
+        methods: {
+            getDefaultSeries(role) {
+                // 根据角色名称或属性分配默认系列
+                if (role.name && role.name.includes('简')) return '犬系';
+                if (role.name && role.name.includes('艾莲')) return '猫系';
+                if (role.name && role.name.includes('橘福福')) return '犬系';
+                return '未知';
+            },
+
+            async fetchRoles() {
+                try {
+                    const response = await fetch('/api/roles');
+                    if (response.ok) {
+                        let roles = await response.json();
+                        console.log('获取到的角色数据:', roles);
+
+                        // 信息
+                        roles = roles.map(role => ({
+                            ...role,
+                            roleSeries: role.roleSeries || this.getDefaultSeries(role),
+                            briefIntro: role.briefIntro || role.description?.substring(0, 100) + '...',
+                            level: role.level || 60,
+                            hp: role.hp || 0,
+                            defense: role.defense || 0
+                        }));
+
+                        this.strategyRoles = roles;
+                    } else {
+                        // 使用增强的模拟数据
+                        this.strategyRoles = this.getMockRoles();
+                    }
+                } catch (error) {
+                    console.error('获取角色列表失败:', error);
+                    this.strategyRoles = this.getMockRoles();
+                }
+            },
+            setStrategyTab(tab) {
+                this.strategyTab = tab;
+            },
+            viewStrategy(role) {
+                alert(`正在加载 ${role.name} 的详细攻略...\n\n暂时请前往角色管理页面查看详细技能信息。`);
+            },
+            saveStrategy(role) {
+                alert(`已收藏 ${role.name} 的攻略！`);
+            }
+        }
+    }).mount('#strategy-app');
+
+    // 监听头像更新事件
+    window.addEventListener('userAvatarUpdated', function(event) {
+        console.log('攻略中心：收到头像更新事件', event.detail);
+
+        if (event.detail && event.detail.avatarUrl) {
+            // 更新导航栏头像
+            const avatarImg = document.querySelector('.user-avatar');
+            const avatarLargeImg = document.querySelector('.user-avatar-large');
+
+            if (avatarImg) {
+                // 添加时间戳避免缓存
+                const newUrl = event.detail.avatarUrl + (event.detail.avatarUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarImg.src = newUrl;
+                console.log('更新导航栏头像:', newUrl);
+            }
+
+            if (avatarLargeImg) {
+                // 添加时间戳避免缓存
+                const newUrl = event.detail.avatarUrl + (event.detail.avatarUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarLargeImg.src = newUrl;
+                console.log('更新下拉菜单大头像:', newUrl);
+            }
+
+            // 保存到本地存储
+            localStorage.setItem('userAvatar', event.detail.avatarUrl);
+        }
+    });
+
+    // 页面加载时设置头像
+    document.addEventListener('DOMContentLoaded', function() {
+        // 从本地存储获取头像
+        const savedAvatar = localStorage.getItem('userAvatar');
+        if (savedAvatar) {
+            const avatarImg = document.querySelector('.user-avatar');
+            const avatarLargeImg = document.querySelector('.user-avatar-large');
+
+            if (avatarImg) {
+                // 添加时间戳避免缓存
+                const newUrl = savedAvatar + (savedAvatar.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarImg.src = newUrl;
+            }
+
+            if (avatarLargeImg) {
+                // 添加时间戳避免缓存
+                const newUrl = savedAvatar + (savedAvatar.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarLargeImg.src = newUrl;
+            }
+        }
+
+        // 监听个人资料更新事件
+        window.addEventListener('userProfileUpdated', function(event) {
+            if (event.detail && event.detail.username) {
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement) {
+                    userNameElement.textContent = event.detail.username;
+                }
+            }
+        });
+    });
+    // 基础交互功能
+    document.addEventListener('DOMContentLoaded', function() {
+        // 用户下拉菜单
+        const userBtn = document.getElementById('user-dropdown-btn');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userBtn && userDropdown) {
+            userBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+            });
+        }
+
+        // 登出功能
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                if (confirm('确定要退出登录吗？')) {
+                    // 清除所有登录相关的本地存储
+                    localStorage.clear();
+                    // 跳转到登录页
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

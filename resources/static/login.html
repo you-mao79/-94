@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 角色管理系统</title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <!-- 样式 -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: url('/images/OIPo.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #faf027;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            min-width: 800px;
+            display: flex;
+            min-height: 580px;
+            max-height: 700px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            background: rgba(3, 3, 14, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(3, 3, 14, 0.95);
+        }
+
+        /* 左侧品牌区域 */
+        .login-brand {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(3, 3, 14, 0.95) 0%, rgba(3, 3, 14, 0.95) 100%);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+        }
+        .brand-icon {
+            margin-bottom: 30px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0);
+            display: flex;
+            align-items: center;      /* 垂直居中 */
+            justify-content: center;  /* 水平居中 */
+            width: 100%;             /* 容器宽度 */
+            height: auto;            /* 自适应高度 */
+        }
+        .brand-icon img {
+            max-width: 118%;          /* 缩小图片宽度 */
+            width: auto;             /* 比例 */
+            height: auto;
+            object-fit: contain;     /* 保持比例填充 */
+        }
+
+        /* 右侧登录区域 */
+        .login-container {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-subtitle {
+            color: #0c0c0b;
+            font-size: 3rem;
+        }
+
+        /* 表单区域 */
+        .login-form {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(3, 3, 14, 0.95);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid #ff001e;
+            border-radius: 12px;
+            color: #f8f8fb;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.2rem;
+        }
+
+        .input-with-icon input {
+            padding-left: 50px;
+        }
+
+        /* 登录按钮 */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, rgb(7, 236, 216) 0%, #07ecd8 100%);
+            color: rgba(3, 3, 14, 0.95);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 演示账户区域 */
+        .demo-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .demo-title {
+            color: #3b82f6;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-credentials {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .credential-item {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+        }
+
+        .credential-label {
+            font-size: 0.85rem;
+            color: #39f304;
+            margin-bottom: 5px;
+        }
+
+        .credential-value {
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        .demo-note {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* 错误信息 */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* 页脚 */
+        .login-footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+        }
+
+        .tech-stack {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .tech-item {
+            padding: 4px 12px;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .login-wrapper {
+                flex-direction: column;
+                max-width: 500px;
+            }
+
+            .login-brand {
+                padding: 40px 30px;
+                min-height: 300px;
+            }
+
+            .login-container {
+                padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .demo-credentials {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-title {
+                font-size: 1.8rem;
+            }
+
+        }
+        /* 背景装饰 */
+        .brand-bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.1) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .bg-animation {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                    45deg,
+                    transparent 30%,
+                    rgba(59, 130, 246, 0.1) 50%,
+                    transparent 70%
+            );
+            animation: shimmer 8s infinite linear;
+            z-index: 1;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="login-wrapper">
+    <!-- 左侧品牌区域 -->
+    <div class="login-brand">
+        <div class="brand-bg-pattern"></div>
+        <div class="bg-animation"></div>
+
+        <div class="brand-content">
+            <div class="brand-icon">
+                <img src="/images/oooo.png" alt="品牌图标" style=" object-fit: contain;">
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧登录区域 -->
+    <div class="login-container">
+        <div class="login-header">
+            <h3 class="login-subtitle">请登录您的账户</h3>
+        </div>
+
+        <div id="error-message" class="error-message">
+            <i class="bi bi-exclamation-circle"></i>
+            <span id="error-text">账号或密码错误，请重试</span>
+        </div>
+
+        <form id="loginForm" class="login-form">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-person-circle"></i> 账号
+                </label>
+                <div class="input-with-icon">
+                    <i class="bi bi-person input-icon"></i>
+                    <input
+                            type="text"
+                            id="account"
+                            name="account"
+                            class="form-control"
+                            placeholder="请输入您的账号"
+                            required
+                            autocomplete="username"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-key"></i> 密码
+                </label>
+                <div class="input-with-icon">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control"
+                            placeholder="请输入您的密码"
+                            required
+                            autocomplete="current-password"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn">
+                <i class="bi bi-box-arrow-in-right"></i>
+                登录系统
+            </button>
+        </form>
+
+        <div class="demo-section">
+            <div class="demo-title">
+                <i class="bi bi-info-circle"></i>
+                演示账户信息
+            </div>
+
+            <div class="demo-credentials">
+                <div class="credential-item">
+                    <div class="credential-label">账号</div>
+                    <div class="credential-value" id="demo-account">G213323441</div>
+                </div>
+
+                <div class="credential-item">
+                    <div class="credential-label">密码</div>
+                    <div class="credential-value" id="demo-password">1234567</div>
+                </div>
+            </div>
+
+            <p class="demo-note">
+                <i class="bi bi-lightbulb"></i>
+                使用演示账户快速体验系统功能，登录后可查看角色管理、3D模型预览等核心功能。
+            </p>
+        </div>
+
+        <div class="login-footer">
+            <p>角色管理系统</p>
+            <div class="tech-stack">
+                <span class="tech-item">Vue.js</span>
+                <span class="tech-item">Spring Boot</span>
+                <span class="tech-item">Three.js</span>
+                <span class="tech-item">MySQL</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('页面加载完成');
+        // 1. 检查是否已登录，如果已登录直接跳转到首页
+        // 更严格的登录状态检查
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const username = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+
+        console.log('登录状态检查:', {
+            isLoggedIn,
+            username,
+            token,
+            pathname: window.location.pathname
+        });
+        // 仅在确实有有效登录信息时才跳转
+        // 确保 token 存在且不为空
+        if (isLoggedIn === 'true' && username && username.trim() !== '' &&
+            token && token.trim() !== '' && !token.includes('demo_token_')) {
+            console.log('已登录，跳转到首页');
+            window.location.href = 'home.html';
+            return;
+        }
+        // 清除可能存在的无效登录状态
+        if (!isLoggedIn || isLoggedIn !== 'true' || !username || !token) {
+            console.log('登录状态无效，清除本地存储');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userAccount');
+        }
+        // 3. 处理登录表单提交
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                console.log('表单提交事件触发');
+
+                const account = document.getElementById('account').value;
+                const password = document.getElementById('password').value;
+
+                console.log('提交的登录信息:', { account, password });
+
+                try {
+                    // 显示加载状态
+                    const loginBtn = document.querySelector('.login-btn');
+                    const originalText = loginBtn.innerHTML;
+                    loginBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 登录中...';
+                    loginBtn.disabled = true;
+
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            account: account,
+                            password: password
+                        })
+                    });
+
+                    console.log('API响应状态:', response.status);
+
+                    const result = await response.json();
+                    console.log('API响应数据:', result);
+
+                    if (response.ok && result.success) {
+                        // 登录成功
+                        console.log('登录成功:', result);
+
+                        // 生成有效的token（如果是演示登录，使用特定标识）
+                        const isDemoLogin = (account === 'G213323441' && password === '1234567');
+                        const token = isDemoLogin ?
+                            'demo_valid_token_' + Date.now() :
+                            (result.token || 'valid_user_token_' + Date.now());
+
+                        // 保存用户信息到localStorage
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userId', result.userId || '1');
+                        localStorage.setItem('username', result.username || '绮哟哟');
+                        localStorage.setItem('userAccount', result.account || account);
+                        localStorage.setItem('token', token);
+
+                        // 添加登录时间戳
+                        localStorage.setItem('loginTime', Date.now().toString());
+
+                        // 显示成功消息
+                        alert('登录成功！即将跳转到首页...');
+
+                        // 跳转到首页
+                        window.location.href = 'home.html';
+
+                    } else {
+                        // 登录失败
+                        console.log('登录失败:', result.message);
+                        document.getElementById('error-text').textContent = result.message || '登录失败，请检查账号密码';
+                        document.getElementById('error-message').style.display = 'flex';
+                        // 恢复按钮状态
+                        loginBtn.innerHTML = originalText;
+                        loginBtn.disabled = false;
+                    }
+
+                } catch (error) {
+                    console.error('登录请求错误:', error);
+                    document.getElementById('error-text').textContent = '网络连接错误，请检查API服务';
+                    document.getElementById('error-message').style.display = 'flex';
+                    // 恢复按钮状态
+                    const loginBtn = document.querySelector('.login-btn');
+                    loginBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> 登录系统';
+                    loginBtn.disabled = false;
+                }
+            });
+        }
+// 验证登录状态的有效性
+        function validateLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const username = localStorage.getItem('username');
+            const token = localStorage.getItem('token');
+
+            // 基础验证
+            if (isLoggedIn !== 'true') return false;
+            if (!username || username.trim() === '') return false;
+            if (!token || token.trim() === '') return false;
+
+            // 检查是否是演示token
+            if (token.startsWith('demo_token_')) {
+                console.log('检测到演示token，需要重新登录');
+                return false;
+            }
+
+            // 检查token是否过期（简单检查）
+            try {
+                if (token.includes('_')) {
+                    const timestamp = token.split('_')[1];
+                    if (timestamp) {
+                        const tokenTime = parseInt(timestamp);
+                        const currentTime = Date.now();
+                        // 如果token超过24小时，认为过期
+                        if (currentTime - tokenTime > 24 * 60 * 60 * 1000) {
+                            console.log('Token已过期');
+                            return false;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('检查token过期时出错:', e);
+            }
+
+            return true;
+        }
+
+        // 4. 手动测试登录函数（用于调试）
+        window.testLogin = async function() {
+            console.log('手动测试登录');
+            const account = document.getElementById('account').value;
+            const password = document.getElementById('password').value;
+
+            console.log('测试数据:', { account, password });
+
+            try {
+                // 直接测试API
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ account, password })
+                });
+
+                console.log('响应状态:', response.status);
+                const result = await response.json();
+                console.log('响应结果:', result);
+
+                alert('API响应:\n' + JSON.stringify(result, null, 2));
+
+            } catch (error) {
+                console.error('测试错误:', error);
+                alert('测试失败: ' + error.message);
+            }
+        };
+    });
+</script>
+</body>
+</html>

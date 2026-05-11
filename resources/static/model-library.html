@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型库</title>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <!-- Three.js 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- 样式 -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- 模型预览JS -->
+    <script src="/js/model-preview.js"></script>
+    <style>
+        /* 模型库特定样式 */
+        .model-library {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .library-header {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .library-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .library-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .library-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .library-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .filter-select, .sort-select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        /* 按钮样式 */
+        .action-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            pointer-events: auto !important;
+        }
+
+        .action-btn:hover {
+            background: #00f2fe;
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #00f2fe;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #4facfe;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 14px;
+        }
+        /* 模型卡片样式 */
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .model-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .model-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .model-content {
+            padding: 20px;
+        }
+
+        .model-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .model-title h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin: 0;
+        }
+
+        .model-badge {
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 5px;
+        }
+
+        .level-badge {
+            background: #4facfe;
+        }
+
+        .model-info-summary {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .model-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* 模型操作按钮 */
+        .model-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .model-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer !important;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100;
+        }
+
+        .preview-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .preview-btn:hover {
+            background: #00f2fe;
+            transform: translateY(-2px);
+        }
+
+        .download-btn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .download-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .edit-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* 预览模式样式 */
+        .preview-mode {
+            margin-top: 20px;
+        }
+
+        .preview-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .preview-header h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .preview-control-btn {
+            padding: 10px;
+            background: rgba(79, 172, 254, 0.2);
+            border: 1px solid rgba(79, 172, 254, 0.4);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            height: 40px;
+        }
+
+        .preview-control-btn:hover:not(:disabled) {
+            background: rgba(79, 172, 254, 0.4);
+            border-color: rgba(79, 172, 254, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .preview-control-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(128, 128, 128, 0.1);
+            border-color: rgba(128, 128, 128, 0.2);
+        }
+
+        .danger-btn {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: rgba(255, 107, 107, 0.4);
+        }
+
+        .danger-btn:hover:not(:disabled) {
+            background: rgba(255, 107, 107, 0.4);
+            border-color: rgba(255, 107, 107, 0.8);
+        }
+
+        #preview-3d-container {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid rgba(79, 172, 254, 0.2);
+        }
+
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 500px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4facfe;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .preview-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .value {
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* 状态提示 */
+        .status-info {
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .status-info i {
+            color: #4facfe;
+            margin-right: 8px;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            margin: 0;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: #f0f0f0;
+            color: #ff6b6b;
+        }
+
+        /* 表单样式 */
+        .form-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-primary {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            background: #00f2fe;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        /* 图片上传区域 */
+        .image-upload-area {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .image-preview {
+            flex-shrink: 0;
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .empty-preview {
+            text-align: center;
+            color: #999;
+        }
+
+        /* 用户下拉菜单样式 */
+        .user-dropdown-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="main-nav">
+    <div class="nav-brand">
+        <img src="/images/tubiao.png" alt="品牌图标" style="width: 95px; height: 55px; margin-right: 10px;">
+        角色管理系统
+    </div>
+
+    <div class="nav-links">
+        <a href="home.html" class="nav-btn">
+            <i class="bi bi-house"></i> <span>首页</span>
+        </a>
+        <a href="model-library.html" class="nav-btn active">
+            <i class="bi bi-collection"></i> <span>模型库</span>
+        </a>
+        <a href="strategy-center.html" class="nav-btn">
+            <i class="bi bi-journal-text"></i> <span>攻略中心</span>
+        </a>
+
+        <div class="user-dropdown">
+            <button class="user-btn" id="user-dropdown-btn">
+                <img src="/images/avatar.jpg" class="user-avatar" id="user-avatar-img"
+                     onerror="this.src='/images/default-avatar.jpg'" alt="用户头像">
+                <span class="user-name">绮哟哟</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="user-dropdown-content" id="userDropdown">
+                <div class="user-info">
+                    <img src="/images/avatar.jpg" class="user-avatar-large" id="user-avatar-large"
+                         onerror="this.src='/images/default-avatar.jpg'">
+                    <div class="user-details">
+                        <h4>绮哟哟</h4>
+                        <p>UID: G213323441</p>
+                        <span class="user-level">Lv.60</span>
+                    </div>
+                </div>
+                <div class="user-menu">
+                    <a href="personal-center.html" class="user-menu-item">
+                        <i class="bi bi-person"></i> 个人中心
+                    </a>
+                    <a href="#" class="user-menu-item">
+                        <i class="bi bi-gear"></i> 账号设置
+                    </a>
+                    <div class="divider"></div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="bi bi-box-arrow-right"></i> 退出登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 模型库内容 -->
+<div class="model-library" id="app">
+    <!-- 页面内容保持不变 -->
+    <div class="library-header">
+        <div class="header-left">
+            <h1>3D模型库</h1>
+            <p>管理所有角色的3D模型文件</p>
+        </div>
+        <button class="back-btn" @click="goBack" v-if="showPreview">
+            <i class="bi bi-arrow-left"></i> 返回模型库
+        </button>
+    </div>
+
+    <!-- 预览模式 -->
+    <div v-if="showPreview && previewModelData" class="preview-mode">
+        <div class="preview-header">
+            <div>
+                <h2>{{ previewModelData.name }} - 模型预览</h2>
+                <p>支持格式: PMX, FBX</p>
+                <div v-if="!hasModel(previewModelData)" class="status-info">
+                    <i class="bi bi-info-circle"></i>
+                    当前显示的是参考场景。请上传模型文件以预览实际模型。
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-controls">
+            <!-- 旋转控制 -->
+            <button @click="rotateLeft" class="preview-control-btn" title="向左旋转"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+            <button @click="rotateRight" class="preview-control-btn" title="向右旋转"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+
+            <!-- 缩放控制 -->
+            <button @click="zoomIn" class="preview-control-btn" title="放大"
+                    :disabled="previewLoading">
+                <i class="bi bi-zoom-in"></i>
+            </button>
+            <button @click="zoomOut" class="preview-control-btn" title="缩小"
+                    :disabled="previewLoading">
+                <i class="bi bi-zoom-out"></i>
+            </button>
+
+            <!-- 视图平移控制 -->
+            <button @click="panUp" class="preview-control-btn" title="视图上移"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-up"></i>
+            </button>
+            <button @click="panDown" class="preview-control-btn" title="视图下移"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-down"></i>
+            </button>
+            <button @click="panLeft" class="preview-control-btn" title="视图左移"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <button @click="panRight" class="preview-control-btn" title="视图右移"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-right"></i>
+            </button>
+
+            <!-- 重置视角 -->
+            <button @click="previewReset" class="preview-control-btn" title="重置视角"
+                    :disabled="previewLoading">
+                <i class="bi bi-arrow-repeat"></i>
+            </button>
+
+            <!-- 灯光控制 -->
+            <button @click="increaseBrightness" class="preview-control-btn" title="增加亮度">
+                <i class="bi bi-sun"></i>
+            </button>
+            <button @click="decreaseBrightness" class="preview-control-btn" title="降低亮度">
+                <i class="bi bi-moon"></i>
+            </button>
+            <button @click="resetBrightness" class="preview-control-btn" title="重置灯光">
+                <i class="bi bi-lightbulb"></i>
+            </button>
+
+            <!-- 模型操作按钮 -->
+            <button @click="uploadNewModel(previewModelData)" class="preview-control-btn" title="上传模型">
+                <i class="bi bi-upload"></i> 上传
+            </button>
+            <button @click="downloadCurrentModel" class="preview-control-btn" title="下载模型"
+                    :disabled="!hasModel(previewModelData) || previewLoading">
+                <i class="bi bi-download"></i> 下载
+            </button>
+            <button @click="deleteCurrentModel" class="preview-control-btn danger-btn" title="删除模型"
+                    :disabled="!hasModel(previewModelData) || previewLoading">
+                <i class="bi bi-trash"></i> 删除
+            </button>
+            <button @click="closePreview" class="preview-control-btn danger-btn" title="关闭预览">
+                <i class="bi bi-x"></i> 关闭
+            </button>
+        </div>
+
+        <div class="preview-container" style="position: relative; min-height: 500px;">
+            <!-- 加载状态覆盖层 -->
+            <div v-if="previewLoading" class="loading-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(26, 26, 46, 0.9); z-index: 100; border-radius: 8px;">
+                <div class="loading-spinner"></div>
+                <p style="color: white; margin-top: 15px;">正在加载场景...</p>
+            </div>
+
+            <!-- 3D 容器始终存在 -->
+            <div id="preview-3d-container" style="width: 100%; height: 500px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 8px; overflow: hidden; border: 2px solid rgba(79, 172, 254, 0.2);"></div>
+        </div>
+
+        <!-- 模型信息卡片 -->
+        <div class="preview-info">
+            <h4>角色信息</h4>
+            <div class="info-grid">
+                <div>
+                    <p class="label">角色名称</p>
+                    <p class="value">{{ previewModelData.name }}</p>
+                </div>
+                <div>
+                    <p class="label">等级</p>
+                    <p class="value">Lv.{{ previewModelData.level || 60 }}</p>
+                </div>
+                <div>
+                    <p class="label">属性</p>
+                    <p class="value">{{ previewModelData.attribute || '未设置' }}</p>
+                </div>
+                <div>
+                    <p class="label">攻击类型</p>
+                    <p class="value">{{ previewModelData.attackType || '未设置' }}</p>
+                </div>
+                <div>
+                    <p class="label">生命值</p>
+                    <p class="value">{{ previewModelData.hp || 0 }}</p>
+                </div>
+                <div>
+                    <p class="label">防御力</p>
+                    <p class="value">{{ previewModelData.defense || 0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 列表模式 -->
+    <div v-else>
+        <div class="library-stats">
+            <div class="stat-card">
+                <i class="bi bi-collection"></i>
+                <h3>{{ totalModels }}</h3>
+                <p>总模型数</p>
+            </div>
+
+            <div class="stat-card">
+                <i class="bi bi-filetype-pmx"></i>
+                <h3>{{ pmxModels }}</h3>
+                <p>PMX模型</p>
+            </div>
+
+            <div class="stat-card">
+                <i class="bi bi-filetype-fbx"></i>
+                <h3>{{ fbxModels }}</h3>
+                <p>FBX模型</p>
+            </div>
+
+            <div class="stat-card">
+                <i class="bi bi-people"></i>
+                <h3>{{ roles.length }}</h3>
+                <p>关联角色</p>
+            </div>
+        </div>
+
+        <div class="library-controls">
+            <div class="search-box">
+                <i class="bi bi-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999;"></i>
+                <input type="text" class="search-input" placeholder="搜索角色名称..." v-model="searchQuery">
+            </div>
+
+            <select class="filter-select" v-model="selectedAttribute" @change="filterModels">
+                <option value="">所有属性</option>
+                <option value="电属性">电属性</option>
+                <option value="火属性">火属性</option>
+                <option value="冰属性">冰属性</option>
+                <option value="物理">物理</option>
+            </select>
+
+            <button class="action-btn" @click="showUploadModal = true">
+                <i class="bi bi-upload"></i> 上传模型
+            </button>
+
+            <button class="action-btn" @click="showAddRoleModal = true">
+                <i class="bi bi-plus-circle"></i> 添加角色
+            </button>
+        </div>
+
+        <div class="model-grid">
+            <div class="model-card" v-for="role in filteredRoles" :key="role.id">
+                <div class="model-image-wrapper">
+                    <img
+                            :src="getImageUrl(role.imageUrl)"
+                            :alt="role.name"
+                            class="model-image"
+                            @error="handleImageError($event)"
+                    >
+                    <div v-if="!role.imageUrl" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white;">
+                        <i class="bi bi-image" style="font-size: 48px; margin-bottom: 10px; color: #ccc;"></i>
+                        <span style="font-size: 14px; color: #999;">暂无图片</span>
+                    </div>
+                </div>
+
+                <div class="model-content">
+                    <div class="model-title">
+                        <h3>{{ role.name }}</h3>
+                        <div>
+                            <span class="model-badge level-badge">Lv.{{ role.level || 60 }}</span>
+                            <span class="model-badge" :class="hasModel(role) ? 'format-badge' : 'no-model-badge'">
+                                {{ hasModel(role) ? getFileExtension(role.modelFile) : '无模型' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="model-info-summary">
+                        <div class="info-row">
+                            <span class="info-label">生命：</span>
+                            <span class="info-value">{{ role.hp || 0 }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">属性：</span>
+                            <span class="info-value">{{ role.attribute || '未设置' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="model-meta">
+                        <span v-if="hasModel(role)">
+                            <i class="bi bi-file-earmark"></i> {{ role.modelFile }}
+                        </span>
+                        <span v-else>
+                            <i class="bi bi-exclamation-triangle"></i> 未上传模型
+                        </span>
+                    </div>
+
+                    <div v-if="role.description" style="margin: 10px 0; padding: 10px; background: #fff; border: 1px solid #eaeaea; border-radius: 6px;">
+                        <p style="font-size: 14px; color: #555; line-height: 1.5; margin: 0;">
+                            {{ role.description.substring(0, 80) + (role.description.length > 80 ? '...' : '') }}
+                        </p>
+                    </div>
+
+                    <!-- 按钮部分 -->
+                    <div class="model-actions">
+                        <button class="model-btn preview-btn"
+                                @click="previewModel(role)"
+                                title="预览3D模型">
+                            <i class="bi bi-eye"></i> 预览
+                        </button>
+                        <button class="model-btn download-btn"
+                                @click="downloadModel(role)"
+                                title="下载模型文件"
+                                :disabled="!hasModel(role)">
+                            <i class="bi bi-download"></i> 下载
+                        </button>
+                        <button class="model-btn edit-btn" @click="startEditRole(role)">
+                            <i class="bi bi-pencil"></i> 编辑
+                        </button>
+                        <button class="model-btn delete-btn" @click="confirmDeleteRole(role)">
+                            <i class="bi bi-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="filteredRoles.length === 0" class="empty-state">
+            <i class="bi bi-collection"></i>
+            <h3>暂无模型</h3>
+            <p v-if="searchQuery || selectedAttribute">没有找到匹配的模型</p>
+            <p v-else>还没有上传3D模型文件</p>
+        </div>
+    </div>
+
+    <!-- 上传模型模态框 -->
+    <div v-if="showUploadModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>上传模型文件</h2>
+                <button class="modal-close-btn" @click="closeUploadModal">×</button>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                    选择角色：
+                </label>
+                <select v-model="uploadRoleId" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px;">
+                    <option value="">请选择角色</option>
+                    <option v-for="role in roles" :value="role.id">{{ role.name }}</option>
+                </select>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">
+                    选择模型文件：
+                </label>
+                <input type="file" accept=".pmx,.fbx" @change="handleModelFileSelect" style="width: 100%; padding: 10px; border: 2px dashed #ddd; border-radius: 8px;">
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                    支持格式: PMX, FBX (最大800MB)
+                </p>
+            </div>
+
+            <div v-if="selectedModelFile">
+                <p><strong>已选择文件:</strong> {{ selectedModelFile.name }}</p>
+                <p><strong>文件大小:</strong> {{ formatFileSize(selectedModelFile.size) }}</p>
+            </div>
+
+            <div class="modal-footer">
+                <button @click="closeUploadModal" class="btn-secondary">取消</button>
+                <button @click="confirmUpload" :disabled="!selectedModelFile || !uploadRoleId" class="btn-primary">确认上传</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加角色模态框 -->
+    <div v-if="showAddRoleModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>添加新角色</h2>
+                <button class="modal-close-btn" @click="closeAddRoleModal">×</button>
+            </div>
+
+            <div style="max-height: 70vh; overflow-y: auto;">
+                <div class="form-section">
+                    <h3>基本信息</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>角色名称 *</label>
+                            <input type="text" v-model="newRoleForm.name" placeholder="请输入角色名称">
+                        </div>
+                        <div class="form-group">
+                            <label>等级</label>
+                            <input type="number" v-model="newRoleForm.level" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>生命值</label>
+                            <input type="number" v-model="newRoleForm.hp" placeholder="例如: 10000">
+                        </div>
+                        <div class="form-group">
+                            <label>防御力</label>
+                            <input type="number" v-model="newRoleForm.defense" placeholder="例如: 500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>属性信息</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>属性类型</label>
+                            <select v-model="newRoleForm.attribute">
+                                <option value="电属性">电属性</option>
+                                <option value="火属性">火属性</option>
+                                <option value="冰属性">冰属性</option>
+                                <option value="物理">物理</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>攻击类型</label>
+                            <select v-model="newRoleForm.attackType">
+                                <option value="强攻">强攻</option>
+                                <option value="速攻">速攻</option>
+                                <option value="支援">支援</option>
+                                <option value="控制">控制</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>角色描述</h3>
+                    <textarea v-model="newRoleForm.description" rows="4"
+                              placeholder="请输入角色描述..."
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button @click="closeAddRoleModal" class="btn-secondary">取消</button>
+                    <button @click="saveNewRole" class="btn-primary">添加角色</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑角色模态框 -->
+    <div v-if="showEditModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2>编辑角色信息</h2>
+                <button class="modal-close-btn" @click="cancelEdit">×</button>
+            </div>
+
+            <div style="max-height: 70vh; overflow-y: auto;">
+                <!-- 基本信息 -->
+                <div class="form-section">
+                    <h3>基本信息</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>角色名称 *</label>
+                            <input type="text" v-model="editForm.name" placeholder="请输入角色名称">
+                        </div>
+                        <div class="form-group">
+                            <label>等级</label>
+                            <input type="number" v-model="editForm.level" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>生命值</label>
+                            <input type="number" v-model="editForm.hp">
+                        </div>
+                        <div class="form-group">
+                            <label>防御力</label>
+                            <input type="number" v-model="editForm.defense">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 属性信息 -->
+                <div class="form-section">
+                    <h3>属性信息</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>属性类型</label>
+                            <select v-model="editForm.attribute">
+                                <option value="电属性">电属性</option>
+                                <option value="火属性">火属性</option>
+                                <option value="冰属性">冰属性</option>
+                                <option value="物理">物理</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>攻击类型</label>
+                            <select v-model="editForm.attackType">
+                                <option value="强攻">强攻</option>
+                                <option value="速攻">速攻</option>
+                                <option value="支援">支援</option>
+                                <option value="控制">控制</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图片上传 -->
+                <div class="form-section">
+                    <h3>角色图片</h3>
+                    <div class="image-upload-area">
+                        <div class="image-preview">
+                            <div v-if="!imagePreviewUrl && !editForm.imageUrl" class="empty-preview">
+                                <i class="bi bi-image" style="font-size: 48px; color: #ccc;"></i>
+                                <p style="color: #999; margin-top: 10px;">暂无图片</p>
+                            </div>
+                            <img v-else :src="imagePreviewUrl || getImageUrl(editForm.imageUrl)"
+                                 alt="预览"
+                                 style="max-width: 200px; max-height: 200px;">
+                        </div>
+                        <div class="upload-controls">
+                            <input type="file" id="image-upload" accept="image/*" @change="handleImagePreview" style="display: none;">
+                            <label for="image-upload" class="action-btn" style="cursor: pointer; display: inline-block; padding: 10px 20px;">
+                                <i class="bi bi-upload"></i> 选择图片
+                            </label>
+                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                当前图片: {{ editForm.imageUrl || '未设置' }}
+                            </p>
+                            <button v-if="imagePreviewUrl" @click="confirmUploadImage"
+                                    class="btn-primary" style="margin-top: 10px;">
+                                <i class="bi bi-check"></i> 确认上传
+                            </button>
+                            <button v-if="imagePreviewUrl" @click="cancelImagePreview"
+                                    class="btn-secondary" style="margin-top: 5px;">
+                                <i class="bi bi-x"></i> 取消
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 角色描述 -->
+                <div class="form-section">
+                    <h3>角色描述</h3>
+                    <textarea v-model="editForm.description" rows="4"
+                              placeholder="请输入角色描述..."
+                              style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button @click="cancelEdit" class="btn-secondary">取消</button>
+                <button @click="saveEditRole" class="btn-primary">保存修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp } = Vue;
+    createApp({
+        data() {
+            return {
+                roles: [],
+                searchQuery: '',
+                selectedAttribute: '',
+                showUploadModal: false,
+                showAddRoleModal: false,
+                showEditModal: false,
+                uploadRoleId: '',
+                selectedModelFile: null,
+                showPreview: false,
+                previewModelData: null,
+                previewLoading: false,
+                editingRole: null,
+                editForm: {
+                    name: '',
+                    level: 60,
+                    hp: 0,
+                    defense: 0,
+                    attribute: '电属性',
+                    attackType: '强攻',
+                    description: '',
+                    imageUrl: ''
+                },
+                newRoleForm: {
+                    name: '',
+                    level: 60,
+                    hp: 0,
+                    defense: 0,
+                    attribute: '电属性',
+                    attackType: '强攻',
+                    description: '',
+                    imageUrl: ''
+                },
+                imagePreviewUrl: null,
+                selectedImageFile: null
+            };
+        },
+        computed: {
+            filteredRoles() {
+                let filtered = this.roles;
+
+                if (this.searchQuery) {
+                    filtered = filtered.filter(role =>
+                        role.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                }
+
+                if (this.selectedAttribute) {
+                    filtered = filtered.filter(role =>
+                        role.attribute === this.selectedAttribute
+                    );
+                }
+
+                return filtered;
+            },
+            totalModels() {
+                return this.roles.filter(role => this.hasModel(role)).length;
+            },
+            pmxModels() {
+                return this.roles.filter(role =>
+                    this.hasModel(role) && role.modelFile && role.modelFile.toLowerCase().endsWith('.pmx')
+                ).length;
+            },
+            fbxModels() {
+                return this.roles.filter(role =>
+                    this.hasModel(role) && role.modelFile && role.modelFile.toLowerCase().endsWith('.fbx')
+                ).length;
+            }
+        },
+        methods: {
+            async fetchRoles() {
+                try {
+                    console.log('正在获取角色列表...');
+                    const response = await fetch('/api/roles');
+                    if (response.ok) {
+                        this.roles = await response.json();
+                        console.log('获取角色列表成功，数量:', this.roles.length);
+                    } else {
+                        console.error('获取角色列表失败:', response.status);
+                    }
+                } catch (error) {
+                    console.error('获取角色列表失败:', error);
+                }
+            },
+
+            getImageUrl(imageUrl) {
+                if (!imageUrl || imageUrl.trim() === '') {
+                    return '';
+                }
+                if (imageUrl.startsWith('/') || imageUrl.startsWith('http')) {
+                    return imageUrl;
+                }
+                return '/images/' + imageUrl;
+            },
+
+            handleImageError(event) {
+                const wrapper = event.target.parentElement;
+                wrapper.innerHTML = `
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white;">
+                        <i class="bi bi-image" style="font-size: 48px; margin-bottom: 10px; color: #ccc;"></i>
+                        <span style="font-size: 14px; color: #999;">暂无图片</span>
+                    </div>
+                `;
+            },
+
+            // 检查是否有模型
+            hasModel(role) {
+                if (!role) return false;
+                const modelFile = role.modelFile;
+                console.log(`检查角色 ${role.name} 的模型文件:`, modelFile);
+
+                if (!modelFile || modelFile === '' || modelFile === 'null' || modelFile === 'undefined') {
+                    return false;
+                }
+
+                // 检查是否为默认文件名
+                const defaultNames = ['default.pmx', 'default.fbx', 'default'];
+                if (defaultNames.includes(modelFile.toLowerCase())) {
+                    return false;
+                }
+
+                return true;
+            },
+
+            getFileExtension(filename) {
+                if (!filename) return '';
+                return filename.split('.').pop().toUpperCase();
+            },
+
+            // 亮度控制
+            increaseBrightness() {
+                if (window.ModelPreview3D && window.ModelPreview3D.increaseBrightness) {
+                    window.ModelPreview3D.increaseBrightness();
+                    console.log('亮度增加');
+                }
+            },
+
+            decreaseBrightness() {
+                if (window.ModelPreview3D && window.ModelPreview3D.decreaseBrightness) {
+                    window.ModelPreview3D.decreaseBrightness();
+                    console.log('亮度降低');
+                }
+            },
+
+            resetBrightness() {
+                if (window.ModelPreview3D && window.ModelPreview3D.resetBrightness) {
+                    window.ModelPreview3D.resetBrightness();
+                    console.log('亮度重置');
+                }
+            },
+            // 移动旋转控制函数
+            rotateLeft() {
+                if (window.ModelPreview3D && window.ModelPreview3D.rotateLeft) {
+                    window.ModelPreview3D.rotateLeft();
+                }
+            },
+
+            rotateRight() {
+                if (window.ModelPreview3D && window.ModelPreview3D.rotateRight) {
+                    window.ModelPreview3D.rotateRight();
+                }
+            },
+
+            moveUp() {
+                if (window.ModelPreview3D && window.ModelPreview3D.moveUp) {
+                    window.ModelPreview3D.moveUp();
+                }
+            },
+
+            moveDown() {
+                if (window.ModelPreview3D && window.ModelPreview3D.moveDown) {
+                    window.ModelPreview3D.moveDown();
+                }
+            },
+
+            moveLeft() {
+                if (window.ModelPreview3D && window.ModelPreview3D.moveLeft) {
+                    window.ModelPreview3D.moveLeft();
+                }
+            },
+
+            moveRight() {
+                if (window.ModelPreview3D && window.ModelPreview3D.moveRight) {
+                    window.ModelPreview3D.moveRight();
+                }
+            },
+
+            // 视图平移控制
+            panUp() {
+                if (window.ModelPreview3D && window.ModelPreview3D.panUp) {
+                    window.ModelPreview3D.panUp();
+                }
+            },
+
+            panDown() {
+                if (window.ModelPreview3D && window.ModelPreview3D.panDown) {
+                    window.ModelPreview3D.panDown();
+                }
+            },
+
+            panLeft() {
+                if (window.ModelPreview3D && window.ModelPreview3D.panLeft) {
+                    window.ModelPreview3D.panLeft();
+                }
+            },
+
+            panRight() {
+                if (window.ModelPreview3D && window.ModelPreview3D.panRight) {
+                    window.ModelPreview3D.panRight();
+                }
+            },
+
+            zoomIn() {
+                if (window.ModelPreview3D && window.ModelPreview3D.zoomIn) {
+                    window.ModelPreview3D.zoomIn();
+                }
+            },
+
+            zoomOut() {
+                if (window.ModelPreview3D && window.ModelPreview3D.zoomOut) {
+                    window.ModelPreview3D.zoomOut();
+                }
+            },
+
+            previewReset() {
+                if (window.ModelPreview3D && window.ModelPreview3D.reset) {
+                    window.ModelPreview3D.reset();
+                }
+            },
+
+            // 预览模型（允许无模型进入）
+            async previewModel(role) {
+                console.log('=== 预览按钮被点击 ===');
+                console.log('角色信息:', role);
+
+                try {
+                    this.previewModelData = role;
+                    this.showPreview = true;
+                    this.previewLoading = true;
+
+                    // 等待DOM更新
+                    await this.$nextTick();
+
+                    // 清理旧场景
+                    if (window.ModelPreview3D && window.ModelPreview3D.cleanup) {
+                        window.ModelPreview3D.cleanup();
+                    }
+
+                    // 检查预览容器
+                    const container = document.getElementById('preview-3d-container');
+                    if (!container) {
+                        console.error('预览容器不存在');
+                        this.previewLoading = false;
+                        return;
+                    }
+
+                    // 初始化场景（总是显示参考场景）
+                    console.log('初始化3D场景...');
+                    const scene = window.ModelPreview3D.init();
+
+                    if (scene) {
+                        // 直接结束加载状态
+                        this.previewLoading = false;
+
+                        // 检查是否有模型文件
+                        if (!this.hasModel(role)) {
+                            console.log('该角色没有模型文件，显示参考场景');
+                            return; // 保持参考场景显示
+                        }
+
+                        // 如果有模型，延迟加载
+                        setTimeout(async () => {
+                            try {
+                                const modelUrl = `/models/${role.modelFile}`;
+                                const extension = role.modelFile.split('.').pop().toLowerCase();
+
+                                console.log('加载模型:', modelUrl, '格式:', extension);
+                                await window.ModelPreview3D.load(modelUrl, extension);
+                                console.log('模型加载完成');
+                            } catch (loadError) {
+                                console.error('加载错误:', loadError);
+                            }
+                        }, 100);
+                    } else {
+                        this.previewLoading = false;
+                        console.error('场景初始化失败');
+                    }
+                } catch (error) {
+                    console.error('预览初始化失败:', error);
+                    this.previewLoading = false;
+                }
+            },
+
+            closePreview() {
+                if (window.ModelPreview3D && window.ModelPreview3D.cleanup) {
+                    window.ModelPreview3D.cleanup();
+                }
+                this.showPreview = false;
+                this.previewModelData = null;
+                this.previewLoading = false;
+            },
+
+            // 下载模型
+            async downloadModel(role) {
+                console.log('=== 下载按钮被点击 ===');
+                console.log('角色信息:', role);
+
+                // 先检查是否有模型文件
+                if (!this.hasModel(role)) {
+                    alert('❌ 该角色没有可下载的模型文件');
+                    console.log('角色没有模型文件，无法下载');
+                    return;
+                }
+
+                console.log('有模型文件，开始下载:', role.modelFile);
+
+                try {
+                    const modelUrl = `/models/${role.modelFile}`;
+                    console.log('下载URL:', modelUrl);
+
+                    // 创建下载链接并触发下载
+                    const link = document.createElement('a');
+                    link.href = modelUrl;
+                    link.download = `${role.name}_${role.modelFile}`;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    console.log('✅ 下载已触发');
+
+                } catch (error) {
+                    console.error('下载失败:', error);
+                    alert('下载失败: ' + error.message);
+                }
+            },
+
+            async downloadCurrentModel() {
+                if (this.previewModelData) {
+                    await this.downloadModel(this.previewModelData);
+                }
+            },
+
+            async deleteRole(roleId) {
+                try {
+                    const response = await fetch(`/api/roles/${roleId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('角色删除成功！');
+                        this.roles = this.roles.filter(role => role.id !== roleId);
+                        if (this.previewModelData && this.previewModelData.id === roleId) {
+                            this.closePreview();
+                        }
+                    } else {
+                        const error = await response.text();
+                        alert('删除失败: ' + error);
+                    }
+                } catch (error) {
+                    console.error('删除失败:', error);
+                    alert('删除失败: ' + error.message);
+                }
+            },
+
+            confirmDeleteRole(role) {
+                if (confirm(`确定要删除角色 "${role.name}" 吗？\n\n此操作将删除：\n1. 角色基本信息\n2. 关联的模型文件\n3. 角色技能数据\n\n此操作不可撤销！`)) {
+                    this.deleteRole(role.id);
+                }
+            },
+
+            async deleteCurrentModel() {
+                if (this.previewModelData && this.hasModel(this.previewModelData)) {
+                    if (confirm(`确定要删除 ${this.previewModelData.name} 的模型文件吗？此操作不可撤销。`)) {
+                        try {
+                            const response = await fetch(`/api/roles/${this.previewModelData.id}/model`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                alert('模型删除成功！');
+                                await this.fetchRoles();
+                                const updatedRole = this.roles.find(r => r.id === this.previewModelData.id);
+                                if (updatedRole) {
+                                    this.previewModelData = updatedRole;
+                                }
+                                if (window.ModelPreview3D && window.ModelPreview3D.cleanup) {
+                                    window.ModelPreview3D.cleanup();
+                                }
+                            } else {
+                                const error = await response.json();
+                                alert('删除失败: ' + error.message);
+                            }
+                        } catch (error) {
+                            console.error('删除失败:', error);
+                            alert('删除失败: ' + error.message);
+                        }
+                    }
+                }
+            },
+
+            uploadNewModel(role) {
+                this.uploadRoleId = role.id;
+                this.showUploadModal = true;
+            },
+
+            startEditRole(role) {
+                this.editingRole = role;
+                this.editForm = {
+                    name: role.name,
+                    level: role.level || 60,
+                    hp: role.hp || 0,
+                    defense: role.defense || 0,
+                    attribute: role.attribute || '电属性',
+                    attackType: role.attackType || '强攻',
+                    description: role.description || '',
+                    imageUrl: role.imageUrl || ''
+                };
+                this.imagePreviewUrl = null;
+                this.showEditModal = true;
+            },
+
+            async saveEditRole() {
+                if (!this.editingRole) return;
+
+                try {
+                    const response = await fetch(`/api/roles/${this.editingRole.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(this.editForm)
+                    });
+
+                    if (response.ok) {
+                        const updatedRole = await response.json();
+                        const index = this.roles.findIndex(r => r.id === updatedRole.id);
+                        if (index !== -1) {
+                            this.roles[index] = updatedRole;
+                            if (this.previewModelData && this.previewModelData.id === updatedRole.id) {
+                                this.previewModelData = updatedRole;
+                            }
+                        }
+                        alert('角色信息更新成功！');
+                        this.cancelEdit();
+                    } else {
+                        throw new Error('更新失败');
+                    }
+                } catch (error) {
+                    console.error('更新角色失败:', error);
+                    alert('更新失败: ' + error.message);
+                }
+            },
+
+            cancelEdit() {
+                this.editingRole = null;
+                this.editForm = {
+                    name: '',
+                    level: 60,
+                    hp: 0,
+                    defense: 0,
+                    attribute: '电属性',
+                    attackType: '强攻',
+                    description: '',
+                    imageUrl: ''
+                };
+                this.imagePreviewUrl = null;
+                this.selectedImageFile = null;
+                this.showEditModal = false;
+            },
+
+            async saveNewRole() {
+                if (!this.newRoleForm.name) {
+                    alert('请填写角色名称');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/roles', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(this.newRoleForm)
+                    });
+
+                    if (response.ok) {
+                        const newRole = await response.json();
+                        this.roles.push(newRole);
+                        alert('角色添加成功！');
+                        this.closeAddRoleModal();
+                    } else {
+                        throw new Error('添加失败');
+                    }
+                } catch (error) {
+                    console.error('添加角色失败:', error);
+                    alert('添加失败: ' + error.message);
+                }
+            },
+
+            closeAddRoleModal() {
+                this.showAddRoleModal = false;
+                this.newRoleForm = {
+                    name: '',
+                    level: 60,
+                    hp: 0,
+                    defense: 0,
+                    attribute: '电属性',
+                    attackType: '强攻',
+                    description: '',
+                    imageUrl: ''
+                };
+            },
+
+            handleImagePreview(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    alert('只能上传图片文件');
+                    return;
+                }
+
+                this.imagePreviewUrl = URL.createObjectURL(file);
+                this.selectedImageFile = file;
+            },
+
+            async confirmUploadImage() {
+                if (!this.selectedImageFile) return;
+
+                const formData = new FormData();
+                formData.append('file', this.selectedImageFile);
+
+                try {
+                    const response = await fetch('/api/roles/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.editForm.imageUrl = result.fileName;
+                        this.imagePreviewUrl = null;
+                        this.selectedImageFile = null;
+                        alert('图片上传成功！');
+                        await this.fetchRoles();
+                        document.getElementById('image-upload').value = '';
+                    } else {
+                        throw new Error('上传失败');
+                    }
+                } catch (error) {
+                    console.error('上传图片失败:', error);
+                    alert('上传失败: ' + error.message);
+                }
+            },
+
+            cancelImagePreview() {
+                this.imagePreviewUrl = null;
+                this.selectedImageFile = null;
+                document.getElementById('image-upload').value = '';
+            },
+
+            handleModelFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const allowedTypes = ['.pmx', '.fbx'];
+                const fileName = file.name.toLowerCase();
+                const isValidType = allowedTypes.some(ext => fileName.endsWith(ext));
+
+                if (!isValidType) {
+                    alert('只支持 PMX 和 FBX 格式的文件');
+                    event.target.value = '';
+                    return;
+                }
+
+                this.selectedModelFile = file;
+            },
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            },
+
+            async confirmUpload() {
+                if (!this.selectedModelFile || !this.uploadRoleId) {
+                    alert('请选择角色和文件');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', this.selectedModelFile);
+                formData.append('roleId', this.uploadRoleId);
+
+                try {
+                    const response = await fetch('/api/roles/upload-model', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('上传成功:', result);
+                        alert('模型上传成功！');
+
+                        await this.fetchRoles();
+                        this.closeUploadModal();
+
+                        if (this.previewModelData && this.previewModelData.id == this.uploadRoleId) {
+                            const updatedRole = this.roles.find(r => r.id == this.uploadRoleId);
+                            if (updatedRole) {
+                                this.previewModelData = updatedRole;
+                            }
+                        }
+                    } else {
+                        const error = await response.json();
+                        alert('上传失败: ' + error.message);
+                    }
+                } catch (error) {
+                    console.error('上传失败:', error);
+                    alert('上传失败: ' + error.message);
+                }
+            },
+
+            closeUploadModal() {
+                this.showUploadModal = false;
+                this.uploadRoleId = '';
+                this.selectedModelFile = null;
+            },
+
+            goBack() {
+                this.closePreview();
+            },
+
+            filterModels() {
+                console.log('筛选属性:', this.selectedAttribute);
+            }
+        },
+
+        async mounted() {
+            console.log('页面加载完成，开始初始化...');
+            await this.fetchRoles();
+
+            console.log('页面初始化完成');
+        }
+    }).mount('#app');
+</script>
+
+<!-- 全局导航栏交互脚本 -->
+<script>
+    // 全局函数处理用户下拉菜单
+    function toggleUserDropdown() {
+        const dropdown = document.getElementById('userDropdown');
+        if (dropdown) {
+            dropdown.classList.toggle('show');
+        }
+    }
+
+    // 点击外部关闭
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('userDropdown');
+        const userBtn = document.getElementById('user-dropdown-btn');
+
+        if (dropdown && userBtn && !userBtn.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+    // 登出功能
+    function logout() {
+        if (confirm('确定要退出登录吗？')) {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    }
+    // 监听头像更新事件
+    window.addEventListener('userAvatarUpdated', function(event) {
+        console.log('攻略中心：收到头像更新事件', event.detail);
+
+        if (event.detail && event.detail.avatarUrl) {
+            // 更新导航栏头像
+            const avatarImg = document.querySelector('.user-avatar');
+            const avatarLargeImg = document.querySelector('.user-avatar-large');
+
+            if (avatarImg) {
+                // 添加时间戳避免缓存
+                const newUrl = event.detail.avatarUrl + (event.detail.avatarUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarImg.src = newUrl;
+                console.log('更新导航栏头像:', newUrl);
+            }
+
+            if (avatarLargeImg) {
+                // 添加时间戳避免缓存
+                const newUrl = event.detail.avatarUrl + (event.detail.avatarUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarLargeImg.src = newUrl;
+                console.log('更新下拉菜单大头像:', newUrl);
+            }
+
+            // 保存到本地存储
+            localStorage.setItem('userAvatar', event.detail.avatarUrl);
+        }
+    });
+
+    // 页面加载时设置头像
+    document.addEventListener('DOMContentLoaded', function() {
+        // 从本地存储获取头像
+        const savedAvatar = localStorage.getItem('userAvatar');
+        if (savedAvatar) {
+            const avatarImg = document.querySelector('.user-avatar');
+            const avatarLargeImg = document.querySelector('.user-avatar-large');
+
+            if (avatarImg) {
+                // 添加时间戳避免缓存
+                const newUrl = savedAvatar + (savedAvatar.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarImg.src = newUrl;
+            }
+
+            if (avatarLargeImg) {
+                // 添加时间戳避免缓存
+                const newUrl = savedAvatar + (savedAvatar.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+                avatarLargeImg.src = newUrl;
+            }
+        }
+
+        // 监听个人资料更新事件
+        window.addEventListener('userProfileUpdated', function(event) {
+            if (event.detail && event.detail.username) {
+                const userNameElement = document.querySelector('.user-name');
+                if (userNameElement) {
+                    userNameElement.textContent = event.detail.username;
+                }
+            }
+        });
+    });
+
+
+    // 为导航栏按钮绑定点击事件
+    document.addEventListener('DOMContentLoaded', function() {
+        const userBtn = document.getElementById('user-dropdown-btn');
+        if (userBtn) {
+            userBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleUserDropdown();
+            });
+        }
+    });
+</script>
+</body>
+</html>
