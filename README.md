@@ -32,5 +32,6 @@
 | 登录页 | 资源管理首页 | 个人中心 |
 | :---: | :---: | :---: |
 | ![登录页](screenshots/2.png) | ![首页](screenshots/3.png) | ![个人中心](screenshots/1.png) |
+| ![模型属性编辑](screenshots/6.png) | ![模型库](screenshots/5.png) | ![资讯页面](screenshots/4.png) |
 
  ## @ 目前为角色模型资源管理，项目还处于开发中，后续会添加更多功能使用更加方便。
