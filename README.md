@@ -21,7 +21,7 @@
 
 ## 🚀 快速体验
 
-1.  **克隆项目**：`git clone [你的仓库地址]`
+1.  **克隆项目**：`git clone [仓库地址：https://github.com/you-mao79/-94.git]`
 2.  **导入数据库**：新建 `[数据库名]` 库，运行 `db/schema.sql` 完成初始化。
 3.  **修改配置**：打开 `application.yml`，填入你的数据库用户名和密码。
 4.  **启动后端**：运行 `ZomApplication.java` 的主方法。
