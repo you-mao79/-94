@@ -1,7 +1,7 @@
  ##[资源集成]：一个基于 [Spring Boot + Vue] 的资源管理系统
 
 <!-- 👇 1. 放一张项目核心页面的截图，让人一眼就知道这是个什么系统 -->
-![项目预览](screenshots/dashboard.png)
+![项目预览](screenshots/8.png)
 
 ## ✨ 核心功能场景
 
