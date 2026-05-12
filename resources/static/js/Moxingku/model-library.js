@@ -298,7 +298,7 @@ createApp({
                     this.showSpecificUpload = false;
                     this.uploadRole = null;
 
-                    // 如果预览的是当前角色，更新预览
+                    // 预览的是当前角色，更新预览
                     if (this.previewModelData && this.previewModelData.id === roleId) {
                         this.previewModelData.modelFile = result.fileName;
                     }
